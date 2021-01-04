@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import List from "./components/List";
+import { createContext, useEffect, useState } from "react";
 import { Amplify, Auth } from 'aws-amplify';
 import { AWS_REGION, USER_POOL_ID, APP_CLIENT_ID } from './constants';
 import { fetchPosts } from "./api/api";
-import Authenticator from "./components/Authenticator";
 import { Button } from "@material-ui/core";
+import Routes from "./components/Routes";
+import { BrowserRouter } from "react-router-dom";
+
+export const AppContext = createContext({} as any);
 
 Amplify.configure({
   Auth: {
@@ -21,17 +23,17 @@ function App() {
 
   useEffect(() => {
     Auth.currentAuthenticatedUser()
-    .then(() => setIsLoggedIn(true))
-    .catch(error => {
-      console.log(error)
-      setIsLoggedIn(false);
-    });
+      .then(() => setIsLoggedIn(true))
+      .catch(error => {
+        console.log(error)
+        setIsLoggedIn(false);
+      });
   }, [])
 
-  const signout = () => {
+  const signOut = () => {
     Auth.signOut()
-    .then(() => setIsLoggedIn(false))
-    .catch(error => console.log(error));
+      .then(() => setIsLoggedIn(false))
+      .catch(error => console.log(error));
   }
 
   useEffect(() => {
@@ -39,23 +41,27 @@ function App() {
       return;
     }
     fetchPosts()
-    .then((data: any) => {
-      console.log(data)
-      setPosts(data);
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      .then((data: any) => {
+        console.log(data)
+        setPosts(data);
+      })
+      .catch(error => {
+        console.log(error);
+      })
   }, [isLoggedIn])
 
-  return isLoggedIn ? (
+  return isLoggedIn !== null ? (
     <div className="container">
       <div className="header">
-        <Button onClick={signout}>Sign out</Button>
+        <Button onClick={signOut}>Log out</Button>
       </div>
-      <List posts={posts} />
+      <BrowserRouter>
+      <AppContext.Provider value={{setIsLoggedIn, posts}}>
+          <Routes isLoggedIn={isLoggedIn} userRoles={['BlogAuthor']} />
+        </AppContext.Provider>
+      </BrowserRouter>
     </div>
-  ) : isLoggedIn === null ? null : <Authenticator setIsLoggedIn={setIsLoggedIn} />;
+  ) : null;
 }
 
 export default App;

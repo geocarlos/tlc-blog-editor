@@ -1,6 +1,7 @@
 import { Button, makeStyles, TextField } from "@material-ui/core";
 import { Auth } from "aws-amplify";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AppContext } from "../App";
 
 const useStyles = makeStyles({
     auth: {
@@ -25,7 +26,7 @@ const useStyles = makeStyles({
     }
 })
 
-const Authenticator = ({ setIsLoggedIn }: any) => {
+const Authenticator = () => {
 
     const classes = useStyles();
 
@@ -33,6 +34,7 @@ const Authenticator = ({ setIsLoggedIn }: any) => {
         username: '',
         password: ''
     });
+    const { setIsLoggedIn } = useContext(AppContext);
 
     const handleChange = ({ target }: any) => {
         setState(prev => ({ ...prev, [target.name]: target.value }));

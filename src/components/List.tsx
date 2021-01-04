@@ -1,4 +1,6 @@
 import { makeStyles } from "@material-ui/core";
+import { useContext } from "react";
+import { AppContext } from "../App";
 
 const useStyles = makeStyles({
     postList: {
@@ -13,15 +15,12 @@ const useStyles = makeStyles({
     }
 })
 
-type PostList = {
-    posts: Array<any>
-}
-
-const List = ({posts}: PostList) => {
+const List = () => {
     const classes = useStyles();
+    const { posts } = useContext(AppContext);
     return (
         <div className={classes.postList}>
-            <h1>All Posts</h1>
+        <h1>All Posts</h1>
         {posts.map((post: any) => (
             <div className={classes.postItem} key={post.title}>
                 <h2>{post.title}</h2>
