@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { Amplify, Auth } from 'aws-amplify';
 import { AWS_REGION, USER_POOL_ID, APP_CLIENT_ID } from './constants';
-import { fetchPosts } from "./api/api";
+import { fetchCategories, fetchPosts } from "./api/api";
 import { Button } from "@material-ui/core";
 import Routes from "./components/Routes";
 import { BrowserRouter } from "react-router-dom";
@@ -19,6 +19,8 @@ Amplify.configure({
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -42,8 +44,14 @@ function App() {
     }
     fetchPosts()
       .then((data: any) => {
-        console.log(data)
         setPosts(data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    fetchCategories()
+      .then((data: any) => {
+        setCategories(data);
       })
       .catch(error => {
         console.log(error);
@@ -52,11 +60,12 @@ function App() {
 
   return isLoggedIn !== null ? (
     <div className="container">
-      <div className="header">
-        <Button onClick={signOut}>Log out</Button>
-      </div>
+      {isLoggedIn && (
+      <header className="header">
+        <Button style={{height: 'fit-content'}} onClick={signOut}>Log out</Button>
+      </header>)}
       <BrowserRouter>
-      <AppContext.Provider value={{setIsLoggedIn, posts}}>
+      <AppContext.Provider value={{setIsLoggedIn, posts, categories, selectedPost, setSelectedPost, setCategories}}>
           <Routes isLoggedIn={isLoggedIn} userRoles={['BlogAuthor']} />
         </AppContext.Provider>
       </BrowserRouter>
